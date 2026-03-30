@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEasy - Orders</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <h1>🛒 ShopEasy</h1>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="cart.html">Cart</a>
+            <a href="orders.html">Orders</a>
+            <a href="login.html">Login</a>
+        </div>
+    </nav>
+
+    <!-- ORDERS SECTION -->
+    <div class="container">
+        <h2>My Orders</h2>
+        <div id="orders-container"></div>
+    </div>
+
+    <script>
+        const userId = localStorage.getItem('userId');
+
+        if (!userId) {
+            alert('Please login first!');
+            window.location.href = 'login.html';
+        }
+
+        // Load orders
+        fetch(`http://localhost:8080/orders/${userId}`)
+            .then(res => res.json())
+            .then(orders => {
+                const container = document.getElementById('orders-container');
+                if (orders.length === 0) {
+                    container.innerHTML = '<p>No orders yet!</p>';
+                    return;
+                }
+                orders.forEach(order => {
+                    container.innerHTML += `
+                        <div class="order-card">
+                            <h3>Order ID: ${order.id}</h3>
+                            <p>Total: Rs. ${order.totalPrice}</p>
+                            <p>Date: ${new Date(order.createdAt).toLocaleDateString()}</p>
+                            <span class="status">${order.status}</span>
+                        </div>
+                    `;
+                });
+            });
+    </script>
+
+</body>
+</html>

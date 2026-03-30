@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEasy - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <h1>🛒 ShopEasy</h1>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="cart.html">Cart</a>
+            <a href="orders.html">Orders</a>
+            <a href="login.html">Login</a>
+        </div>
+    </nav>
+
+    <!-- LOGIN FORM -->
+    <div class="form-container">
+        <h2>Login</h2>
+        <input type="email" id="email" placeholder="Email" />
+        <input type="password" id="password" placeholder="Password" />
+        <button id="loginBtn">Login</button>
+        <p>Don't have an account? <a href="register.html">Register here</a></p>
+    </div>
+
+    <script>
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            fetch('http://localhost:8080/users/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: password })
+            })
+            .then(function(res) { return res.text(); })
+            .then(function(msg) {
+                if (msg.includes('Login Successful')) {
+                    const userId = msg.split('User ID: ')[1];
+                    localStorage.setItem('userId', userId);
+                    localStorage.setItem('userName', email.split('@')[0]);
+                    alert('Login Successful!');
+                    window.location.href = 'index.html';
+                } else {
+                    alert('Invalid email or password!');
+                }
+            })
+            .catch(function(err) {
+                alert('Error: ' + err.message);
+            });
+        });
+    </script>
+
+</body>
+</html>

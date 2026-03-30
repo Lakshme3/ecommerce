@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEasy - Home</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+   <!-- NAVBAR -->
+<nav class="navbar">
+    <h1>🛒 ShopEasy</h1>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="cart.html">Cart</a>
+        <a href="orders.html">Orders</a>
+        <span id="nav-user"></span>
+        <a href="login.html" id="login-link">Login</a>
+        <a href="#" id="logout-link" style="display:none" onclick="logout()">Logout</a>
+    </div>
+</nav>
+
+    <!-- PRODUCTS SECTION -->
+    <div class="container">
+        <h2>Our Products</h2>
+        <div id="products-container" class="products-grid">
+            <!-- Products will load here -->
+        </div>
+    </div>
+
+    <script>
+    // Check if logged in
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+
+    if (userId) {
+        document.getElementById('login-link').style.display = 'none';
+        document.getElementById('logout-link').style.display = 'inline';
+        document.getElementById('nav-user').textContent = '👤 ' + userName + ' | ';
+    }
+
+    function logout() {
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userName');
+        window.location.href = 'login.html';
+    }
+
+    // Load all products from backend
+    fetch('http://localhost:8080/products')
+        .then(res => res.json())
+        .then(products => {
+            const container = document.getElementById('products-container');
+            products.forEach(product => {
+                container.innerHTML += `
+                    <div class="product-card">
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <p class="price">Rs. ${product.price}</p>
+                        <button onclick="addToCart(${product.id})">Add to Cart</button>
+                    </div>
+                `;
+            });
+        });
+
+    function addToCart(productId) {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            alert('Please login first!');
+            window.location.href = 'login.html';
+            return;
+        }
+        fetch(`http://localhost:8080/cart/add?userId=${userId}&productId=${productId}&quantity=1`, {
+            method: 'POST'
+        })
+        .then(res => res.text())
+        .then(msg => alert(msg));
+    }
+</script>
+
+</body>
+</html>

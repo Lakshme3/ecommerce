@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEasy - Cart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <h1>🛒 ShopEasy</h1>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="cart.html">Cart</a>
+            <a href="orders.html">Orders</a>
+            <a href="login.html">Login</a>
+        </div>
+    </nav>
+
+    <!-- CART SECTION -->
+    <div class="container">
+        <h2>My Cart</h2>
+        <div id="cart-container"></div>
+        <button class="place-order-btn" onclick="placeOrder()">
+            Place Order
+        </button>
+    </div>
+
+    <script>
+        const userId = localStorage.getItem('userId');
+
+        if (!userId) {
+            alert('Please login first!');
+            window.location.href = 'login.html';
+        }
+
+        // Load cart items
+        fetch(`http://localhost:8080/cart/${userId}`)
+            .then(res => res.json())
+            .then(items => {
+                const container = document.getElementById('cart-container');
+                if (items.length === 0) {
+                    container.innerHTML = '<p>Your cart is empty!</p>';
+                    return;
+                }
+                items.forEach(item => {
+                    container.innerHTML += `
+                        <div class="cart-item">
+                            <div>
+                                <h3>Product ID: ${item.productId}</h3>
+                                <p>Quantity: ${item.quantity}</p>
+                            </div>
+                            <button onclick="removeItem(${item.id})">
+                                Remove
+                            </button>
+                        </div>
+                    `;
+                });
+            });
+
+        // Remove item from cart
+        function removeItem(cartItemId) {
+            fetch(`http://localhost:8080/cart/remove/${cartItemId}`, {
+                method: 'DELETE'
+            })
+            .then(res => res.text())
+            .then(msg => {
+                alert(msg);
+                location.reload();
+            });
+        }
+
+        // Place order
+        function placeOrder() {
+            fetch(`http://localhost:8080/orders/place/${userId}`, {
+                method: 'POST'
+            })
+            .then(res => res.text())
+            .then(msg => {
+                alert(msg);
+                window.location.href = 'orders.html';
+            });
+        }
+    </script>
+
+</body>
+</html>
